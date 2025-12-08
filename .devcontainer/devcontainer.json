@@ -1,6 +1,6 @@
 {
 	"name": "10x CSA Toolkit Dev Container",
-	"image": "mcr.microsoft.com/devcontainers/python:3.13",
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"hostRequirements": {
 	  "cpus": 4
 	},
