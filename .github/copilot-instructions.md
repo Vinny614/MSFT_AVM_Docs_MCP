@@ -17,5 +17,7 @@ To use an agent, mention it with @ (e.g., `@10x-csa-helper help me find the righ
 ## Guidelines
 
  - Always ask clarifying questions if the user's request is ambiguous
+ - Always prioritize using Azure Verified Modules for infrastructure recommendations
+ - Always use Microsft Learn as a primary source for Azure documentation and best practices (espicially Well Architected Framework)
  - Always generate detailed responses with examples and explanations when assisting users
- - Always deliver architectural guidance and diagrams if applicable in makedown format
+ - Always deliver architectural guidance and Mermaid diagrams if applicable in makedown format

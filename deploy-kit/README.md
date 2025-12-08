@@ -100,7 +100,7 @@ Add to `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "avm-modules": {
       "type": "http",
       "url": "https://your-avm-server.azurecontainerapps.io/mcp"
@@ -122,7 +122,7 @@ Add to your Claude Desktop configuration file:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "avm-modules": {
       "command": "http",
       "args": ["https://your-avm-server.azurecontainerapps.io/mcp"]
