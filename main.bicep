@@ -5,6 +5,20 @@
 @description('Location for all resources')
 param location string = resourceGroup().location
 
+@description('Array of MCP servers to deploy')
+param mcpServers array = [
+  {
+    name: 'avm-modules'
+    displayName: 'AVM MCP Server'
+    imageName: 'mcp-avm-modules'
+  }
+  {
+    name: 'azure-pricing'
+    displayName: 'Azure Pricing MCP Server'
+    imageName: 'mcp-azure-pricing'
+  }
+]
+
 // ------------------
 //    VARIABLES
 // ------------------
@@ -13,8 +27,6 @@ var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var containerRegistryName = 'acr${resourceSuffix}'
 var containerAppEnvName = 'aca-env-${resourceSuffix}'
 var logAnalyticsWorkspaceName = 'law-${resourceSuffix}'
-var avmMcpServerAppName = 'aca-avm-${resourceSuffix}'
-var pricingMcpServerAppName = 'aca-pricing-${resourceSuffix}'
 var managedIdentityName = 'aca-mi-${resourceSuffix}'
 
 // ------------------
@@ -109,9 +121,9 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' 
   }
 }
 
-// 6. AVM MCP Server Container App
-resource avmMcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: avmMcpServerAppName
+// 6. MCP Server Container Apps (Dynamic)
+resource mcpServerContainerApps 'Microsoft.App/containerApps@2023-11-02-preview' = [for server in mcpServers: {
+  name: 'aca-${server.name}-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -138,7 +150,7 @@ resource avmMcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-previe
     template: {
       containers: [
         {
-          name: avmMcpServerAppName
+          name: 'aca-${server.name}-${resourceSuffix}'
           image: 'docker.io/jfxs/hello-world:latest'
           env: [
             {
@@ -166,66 +178,7 @@ resource avmMcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-previe
       }
     }
   }
-}
-
-// 7. Azure Pricing MCP Server Container App
-resource pricingMcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: pricingMcpServerAppName
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerAppUAI.id}': {}
-    }
-  }
-  properties: {
-    managedEnvironmentId: containerAppEnv.id
-    configuration: {
-      ingress: {
-        external: true
-        targetPort: 8080
-        allowInsecure: true
-        transport: 'http'
-      }
-      registries: [
-        {
-          identity: containerAppUAI.id
-          server: containerRegistry.properties.loginServer
-        }
-      ]
-    }
-    template: {
-      containers: [
-        {
-          name: pricingMcpServerAppName
-          image: 'docker.io/jfxs/hello-world:latest'
-          env: [
-            {
-              name: 'MCP_HOST'
-              value: '0.0.0.0'
-            }
-            {
-              name: 'MCP_PORT'
-              value: '8080'
-            }
-            {
-              name: 'MCP_DEBUG'
-              value: 'false'
-            }
-          ]
-          resources: {
-            cpu: json('.5')
-            memory: '1Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 3
-      }
-    }
-  }
-}
+}]
 
 // ------------------
 //    OUTPUTS
@@ -235,13 +188,14 @@ output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.properties.custome
 output containerRegistryName string = containerRegistry.name
 output containerRegistryLoginServer string = containerRegistry.properties.loginServer
 
-output avmMcpServerContainerAppName string = avmMcpServerContainerApp.name
-output avmMcpServerFQDN string = avmMcpServerContainerApp.properties.configuration.ingress.fqdn
-output avmMcpServerURL string = 'https://${avmMcpServerContainerApp.properties.configuration.ingress.fqdn}'
-
-output pricingMcpServerContainerAppName string = pricingMcpServerContainerApp.name
-output pricingMcpServerFQDN string = pricingMcpServerContainerApp.properties.configuration.ingress.fqdn
-output pricingMcpServerURL string = 'https://${pricingMcpServerContainerApp.properties.configuration.ingress.fqdn}'
-
 output managedIdentityPrincipalId string = containerAppUAI.properties.principalId
 output managedIdentityClientId string = containerAppUAI.properties.clientId
+
+// Dynamic outputs for all MCP servers
+output mcpServers array = [for (server, i) in mcpServers: {
+  name: server.name
+  displayName: server.displayName
+  containerAppName: mcpServerContainerApps[i].name
+  fqdn: mcpServerContainerApps[i].properties.configuration.ingress.fqdn
+  url: 'https://${mcpServerContainerApps[i].properties.configuration.ingress.fqdn}'
+}]
