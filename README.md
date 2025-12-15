@@ -30,7 +30,7 @@ This repository deploys AI-powered MCP servers that integrate directly with your
 
 ## 🛠️ What's Included
 
-This repository deploys **two specialized MCP servers** to Azure Container Apps:
+This repository deploys **three specialized MCP servers** to Azure Container Apps and uses an addition MCP Server :
 
 ### 1. **AVM MCP Server** 
 Provides real-time access to Azure Verified Modules (AVM):
@@ -55,6 +55,30 @@ Instant access to Azure pricing data:
 - *"What's the monthly cost of a P1v3 App Service Plan in West Europe?"*
 - *"Compare VM pricing: D4s v3 vs D4as v5 in East US"*
 - *"List all Azure Database service families with pricing"*
+
+### 3. **Context7 MCP Server**
+Access up-to-date documentation for popular libraries and frameworks:
+- Fetch current library documentation
+- Get code examples and API references
+- Stay updated with latest versions and best practices
+- Support for conceptual guides and architecture information
+
+**Example queries:**
+- *"Show me the latest Azure SDK for Python documentation"*
+- *"Get code examples for using Azure Functions with Python"*
+- *"What's new in the latest version of Terraform Azure provider?"*
+
+### 4. **MarkItDown MCP Server**
+Convert various document formats to clean Markdown:
+- Convert Office documents (Word, PowerPoint, Excel)
+- Extract text from PDFs and images (with OCR)
+- Process HTML and other web content
+- Ideal for documentation processing and content extraction
+
+**Example queries:**
+- *"Convert this PDF architecture document to Markdown"*
+- *"Extract text from this Word document"*
+- *"Convert this PowerPoint presentation to readable text"*
 
 ## 📋 Prerequisites
 
@@ -108,6 +132,14 @@ Add to `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_
     "azure-pricing": {
       "type": "http",
       "url": "https://your-pricing-server.azurecontainerapps.io/mcp"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "markitdown": {
+      "type": "http",
+      "url": "https://your-markitdown-server.azurecontainerapps.io/mcp"
     }
   }
 }
@@ -130,6 +162,14 @@ Add to your Claude Desktop configuration file:
     "azure-pricing": {
       "command": "http",
       "args": ["https://your-pricing-server.azurecontainerapps.io/mcp"]
+    },
+    "context7": {
+      "command": "http",
+      "args": ["https://mcp.context7.com/mcp"]
+    },
+    "markitdown": {
+      "command": "http",
+      "args": ["https://your-markitdown-server.azurecontainerapps.io/mcp"]
     }
   }
 }
@@ -170,17 +210,18 @@ Open your AI assistant and start asking Azure questions directly!
 └────────────────────┬────────────────────────────────────────┘
                      │ MCP Protocol (HTTPS)
                      │
-        ┌────────────┴────────────┐
-        │                         │
-        ▼                         ▼
-┌───────────────┐         ┌───────────────┐
-│  AVM MCP      │         │ Pricing MCP   │
-│  Server       │         │ Server        │
-│               │         │               │
-│ Container App │         │ Container App │
-└───────┬───────┘         └───────┬───────┘
-        │                         │
-        └────────────┬────────────┘
+        ┌────────────┼────────────┐
+        │            │            │
+        ▼            ▼            ▼
+┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+│    AVM    │  │  Pricing  │  │ Context7  │  │MarkItDown │
+│    MCP    │  │    MCP    │  │  (External│  │    MCP    │
+│  Server   │  │  Server   │  │  Service) │  │  Server   │
+│Container  │  │Container  │  └───────────┘  │Container  │
+│    App    │  │    App    │                 │    App    │
+└─────┬─────┘  └─────┬─────┘                 └─────┬─────┘
+      │              │                             │
+      └──────────────┴─────────────────────────────┘
                      │
               ┌──────▼──────┐
               │   Azure     │
@@ -193,9 +234,10 @@ Open your AI assistant and start asking Azure questions directly!
 - Azure Container Registry (ACR)
 - Container Apps Environment
 - Log Analytics Workspace
-- 2x Container Apps (AVM + Pricing MCP Servers)
+- 3x Container Apps (AVM, Pricing, and MarkItDown MCP Servers)
 - Managed Identity
 - HTTPS Ingress with public endpoints
+- External MCP Services: Context7 (hosted by third-party)
 
 ## 📊 Cost Considerations
 
