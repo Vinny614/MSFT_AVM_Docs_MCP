@@ -224,7 +224,7 @@ Typical monthly costs for this deployment (approximate):
 To remove all deployed resources:
 
 ```bash
-az group delete --name lab-10x-csa-mcp-servers --yes --no-wait
+az group delete --name lab-10x-csa-toolkit --yes --no-wait
 ```
 
 Or uncomment the cleanup cell in the deployment notebook.
@@ -243,6 +243,7 @@ Contributions are welcome! Areas for enhancement:
 - [Azure Verified Modules (AVM)](https://aka.ms/avm)
 - [Azure Pricing API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
 - [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/)
+- [MarkItDown](https://github.com/microsoft/markitdown/tree/main)
 
 ## 🏆 Success Stories
 
